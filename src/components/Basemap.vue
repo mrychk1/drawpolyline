@@ -1,6 +1,8 @@
 <template>
   <div id="mars3dContainer" class="mars3d-container">
     <!-- <div>这是一个mars3d地图</div> -->
+
+    <!-- <div class="button" @click="flyto">flyto</div>  -->
   </div>
 </template>
 
@@ -14,6 +16,8 @@ import { mapOptions } from './utily/mapOptions'
 import { AddCrop } from '../utily/AddCrop'
 // 引入多边形数据
 import { apple, banana, orange } from '../data/crop'
+
+let appleCrop: AddCrop
 onMounted(() => {
   // 初始化地图
   const mapInstance = new Map('mars3dContainer', mapOptions)
@@ -21,18 +25,21 @@ onMounted(() => {
   const map = mapInstance.getMapInstance()
   if (map) {
     // 添加多边形
-    const appleCrop = new AddCrop(map, "apple", "#ff0000", apple)
-    appleCrop.addBorder(false)
-    appleCrop.addCenterBillboard()
-    appleCrop.onCenterMouse()
-    const bananaCrop = new AddCrop(map, "banana", "#00ff00", banana)
-    bananaCrop.addBorder(false)
-    bananaCrop.addCenterBillboard()
-    bananaCrop.onCenterMouse()
-    const orangeCrop = new AddCrop(map, "orange", "#0000ff", orange)
-    orangeCrop.addBorder(false)
-    orangeCrop.addCenterBillboard()
-    orangeCrop.onCenterMouse()
+    appleCrop = new AddCrop(map, "apple", "#ff0000", apple)
+    appleCrop.addBorder(true)
+    // 添加墙
+    appleCrop.addWall()
+    // appleCrop.addBorder(false)
+    // appleCrop.addCenterBillboard()
+    // appleCrop.onCenterMouse()
+    // const bananaCrop = new AddCrop(map, "banana", "#00ff00", banana)
+    // bananaCrop.addBorder(false)
+    // bananaCrop.addCenterBillboard()
+    // bananaCrop.onCenterMouse()
+    // const orangeCrop = new AddCrop(map, "orange", "#0000ff", orange)
+    // orangeCrop.addBorder(false)
+    // orangeCrop.addCenterBillboard()
+    // orangeCrop.onCenterMouse()
   }
 
 
@@ -44,11 +51,30 @@ onMounted(() => {
   // // 监听图层集合
 
 })
+
+const flyto = () => {
+  // console.log('flyto')
+  appleCrop.addCenterBillboardAndFlyTo()
+}
 </script>
 
 <style scoped>
 .mars3d-container {
   width: 100%;
   height: 100%;
+}
+
+.button {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  color: #fff;
+  /* width: 100px;
+  height: 100px; */
+  background-color: #000;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 999;
 }
 </style>

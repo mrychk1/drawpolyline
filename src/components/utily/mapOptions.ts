@@ -10,10 +10,10 @@ export const mapOptions = {
         },
         boolean: true // 是否开启地球光照
     },
-    // terrain: {
-    //   url: 'https://data.mars3d.cn/terrain',
-    //   show: true
-    // },
+    terrain: {
+      url: 'https://data.mars3d.cn/terrain',
+      show: true
+    },
     basemaps: [
         { name: '天地图', type: 'tdt', layer: 'img_d', show: true },
         { name: '天地图注记', type: 'tdt', layer: 'img_z', show: true }

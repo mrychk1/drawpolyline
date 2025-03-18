@@ -93,6 +93,19 @@ export class AddCrop {
         }
     }
 
+    // 添加几何中心点并定位过去
+    public addCenterBillboardAndFlyTo() {
+        if (this.map) {
+            this.data.forEach((item: any) => {
+                const features = turf.points(item.coordinates)
+                const center = turf.center(features).geometry.coordinates
+                // 我想要定位到中心点
+                this.map.flyToPoint([center[0], center[1], 1000])
+                // this.map.flyTo()
+            })
+        }
+    }
+
     // 监听几何中心点的鼠标事件
     public onCenterMouse() {
         // 鼠标移入中心点时，显示边框
@@ -103,6 +116,26 @@ export class AddCrop {
         this.graphicLayer2.on(mars3d.EventType.mouseOut, (event: any) => {
             this.graphicLayer1.getGraphicById(event.graphic.id).show = false
         })
+    }
+
+    // 添加边界墙
+    public addWall() {
+        if (this.map) {
+            this.data.forEach((item: any) => {
+                const wall = new mars3d.graphic.WallEntity({
+                    positions: item.coordinates,
+                    style: {
+                        color: this.cropColor,
+                        opacity: 0.5,
+                        outline: true,
+                        outlineColor: '#ffffff',
+                        outlineWidth: 2
+                    }
+                })
+                // 添加墙体到图层
+                this.graphicLayer1.addGraphic(wall)
+            })
+        }
     }
 
     // 获取图层1
