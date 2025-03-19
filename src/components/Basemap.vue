@@ -17,6 +17,9 @@ import { AddCrop } from '../utily/AddCrop'
 // 引入多边形数据
 import { apple, banana, orange } from '../data/crop'
 
+// 引入画图
+import DrawingTool from '../utily/draw';
+import * as Cesium from 'mars3d-cesium';
 let appleCrop: AddCrop
 onMounted(() => {
   // 初始化地图
@@ -29,6 +32,11 @@ onMounted(() => {
     appleCrop.addBorder(true)
     // 添加墙
     appleCrop.addWall()
+    // 添加遮罩
+    appleCrop.addMask()
+    // 画线
+    const drawingTool = new DrawingTool(map.viewer);
+    drawingTool.startDrawing();
     // appleCrop.addBorder(false)
     // appleCrop.addCenterBillboard()
     // appleCrop.onCenterMouse()

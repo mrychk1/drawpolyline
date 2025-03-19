@@ -1,6 +1,6 @@
 export const mapOptions = {
     scene: {
-        center: { "lat": 22.411716, "lng": 114.089777, "alt": 123774.2, "heading": 357.3, "pitch": -84.9 },
+        center: { "lat": 22.628852, "lng": 113.922937, "alt": 6362, "heading": 77.6, "pitch": -43.1 },
         fxaa: true,
         webgl: {
             // alpha: true, // 是否支持webgl透明
@@ -10,10 +10,10 @@ export const mapOptions = {
         },
         boolean: true // 是否开启地球光照
     },
-    terrain: {
-      url: 'https://data.mars3d.cn/terrain',
-      show: true
-    },
+    // terrain: {
+    //     url: 'https://data.mars3d.cn/terrain',
+    //     show: true
+    // },
     basemaps: [
         { name: '天地图', type: 'tdt', layer: 'img_d', show: true },
         { name: '天地图注记', type: 'tdt', layer: 'img_z', show: true }

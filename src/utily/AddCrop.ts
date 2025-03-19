@@ -60,6 +60,7 @@ export class AddCrop {
                     positions: item.coordinates,
                     id: item.id,
                     style: {
+                        clampToGround: true,
                         fill: false,
                         outline: true,
                         outlineColor: this.cropColor,
@@ -118,23 +119,67 @@ export class AddCrop {
         })
     }
 
-    // 添加边界墙
+    // 添加边界线墙
     public addWall() {
         if (this.map) {
-            this.data.forEach((item: any) => {
-                const wall = new mars3d.graphic.WallEntity({
-                    positions: item.coordinates,
-                    style: {
-                        color: this.cropColor,
-                        opacity: 0.5,
-                        outline: true,
-                        outlineColor: '#ffffff',
-                        outlineWidth: 2
-                    }
-                })
-                // 添加墙体到图层
-                this.graphicLayer1.addGraphic(wall)
+            const graphicLayer = new mars3d.layer.GraphicLayer({
+                id: this.cropName + '_wall',
+                // symbol:{
+                //     styleOptions:{
+                //         clampToGround: true
+                //     }
+                // }
             })
+            this.map.addLayer(graphicLayer)
+            // 添加边界线墙
+            // console.log(this.coordinates,"11111")
+            const wallHeight = 500
+            const wall = new mars3d.graphic.WallPrimitive({
+                positions: this.coordinates.flat(),
+                style: {
+                    setHeight: -wallHeight, 
+                    diffHeight: wallHeight, // 墙高
+                    // addHeight:wallHeight,
+                    width: 10,
+                    materialType: mars3d.MaterialType.Image2,
+                    materialOptions: {
+                        image: "https://data.mars3d.cn/img/textures/fence-top.png",
+                        color: "#0b88e3"
+                    },
+                    
+                }
+            })
+            graphicLayer.addGraphic(wall)
+        }
+    }
+
+    // 添加遮罩
+    public addMask() {
+        if (this.map) {
+            // 添加遮罩
+            const GeoJsonLayer = new mars3d.layer.GeoJsonLayer({
+                id: this.cropName + '_mask',
+                data:{
+                    type: 'FeatureCollection',
+                    features: [
+                        {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'MultiPolygon',
+                                coordinates: [this.coordinates]
+                            }
+                        }
+                    ]
+                },
+                symbol:{
+                    styleOptions:{
+                        color: '#000000',
+                        clampToGround: true
+                    }
+                },
+                mask: true
+            })
+            this.map.addLayer(GeoJsonLayer)
         }
     }
 
