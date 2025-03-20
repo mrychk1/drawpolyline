@@ -32,6 +32,7 @@
           </tr>
         </tbody>
       </table>
+      <button @click="editLine">继续编辑</button>
     </div>
   </div>
 </template>
@@ -53,7 +54,6 @@ interface Position {
 const positions = reactive<Position[]>([])
 let mapInstance: mars3d.Map | null = null
 let lineEditor: any = null
-let polylineEntity: mars3d.graphic.PolylineEntity | null = null
 
 // 坐标更新方法（带防抖）
 const updateCoordinate = (index: number, key: keyof Position, value: number) => {
@@ -67,19 +67,15 @@ const updateCoordinate = (index: number, key: keyof Position, value: number) => 
 let updateTimer: number
 const syncToMap = () => {
   clearTimeout(updateTimer)
-  updateTimer = window.setTimeout(updateMapGraphic, 300)
+  updateTimer = window.setTimeout(updateMapGraphic, 100)
 }
 
 // 地图图形更新方法
 const updateMapGraphic = () => {
-  if (!polylineEntity || !mapInstance) return
-  
-  // 更新图形对象
-  polylineEntity.positions = positions.map(p => [p.lon, p.lat, p.height])
-  polylineEntity.redraw()
-  
-  // 自动调整视角
-  // mapInstance.flyToGraphic(polylineEntity, { radius: 100 })
+  if (lineEditor) {
+    const coords = positions.map(p => [p.lon, p.lat, p.height])
+    lineEditor.updateLine(coords)
+  }
 }
 
 onMounted(() => {
@@ -97,21 +93,31 @@ onMounted(() => {
         lat: p[1],
         height: p[2] || 0
       })))
-      // 移除绘制
-      
-      // 创建图形对象
-      polylineEntity = new mars3d.graphic.PolylineEntity({
-        positions: coords,
-        style: {
-          color: '#FF0000',
-          width: 4,
-          clampToGround: true
-        }
-      })
-      mapInstance?.graphicLayer.addGraphic(polylineEntity)
     })
   }
 })
+
+// 继续编辑图形的方法
+const editLine = () => {
+  if (lineEditor) {
+    lineEditor.startEditingById({
+      id: "exampleId",
+      positions: positions.map(p => [p.lon, p.lat, p.height]),
+      style: {
+        color: '#FF0000',
+        width: 4,
+        clampToGround: true
+      },
+      attr: {
+        name: "exampleName",
+        other: {
+          id: "exampleId",
+          name: "exampleName"
+        }
+      }
+    })
+  }
+}
 </script>
 
 <style scoped>
@@ -155,5 +161,19 @@ input {
 input:focus {
   outline: 2px solid #2196F3;
   background: #333;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #2196F3;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1976D2;
 }
 </style>

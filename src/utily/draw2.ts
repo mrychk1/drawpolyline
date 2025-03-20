@@ -4,6 +4,7 @@ class LineEditor {
   private map: mars3d.Map;
   private graphicLayer: mars3d.layer.GraphicLayer;
   private eventTarget: mars3d.BaseClass;
+  private polylineEntity: mars3d.graphic.PolylineEntity | null = null;
 
   constructor(mapInstance: mars3d.Map) {
     this.map = mapInstance;
@@ -27,7 +28,7 @@ class LineEditor {
     );
   }
 
-  public addLine(): Promise<any[]> {
+  public addLine(): Promise<number[][]> {
     return new Promise((resolve) => {
       this.graphicLayer.startDraw({
         name: "画线",
@@ -39,17 +40,40 @@ class LineEditor {
         },
         success: (entity: any) => {
           const positions = entity.toGeoJSON().geometry.coordinates;
-          // console.log("positions", positions);
+          this.polylineEntity = entity;
           resolve(positions);
         },
-        // updateDrawPosition: (entity: any) => {
-        //   this.eventTarget.fire("updateDrawPosition", entity);
-        // }
       });
     });
   }
 
-  // 
+  public updateLine(positions: number[][]) {
+    if (this.polylineEntity) {
+      this.polylineEntity.positions = positions;
+      this.polylineEntity.redraw();
+    }
+  }
+
+  public startEditingById(graphicObj: any) {
+    if (!graphicObj) {
+      return;
+    }
+    this.graphicLayer.clear();
+    const graphic = new mars3d.graphic.PolylineEntity({
+      id: graphicObj.id,
+      positions: graphicObj.positions,
+      style: graphicObj.style,
+      attr: graphicObj.attr,
+      show: false
+    });
+    this.graphicLayer.addGraphic(graphic);
+    if (graphic == null) {
+      return;
+    }
+
+    graphic.flyTo();
+    this.graphicLayer.startEditing(graphic);
+  }
 }
 
 export default LineEditor;
