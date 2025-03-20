@@ -51,15 +51,23 @@ class LineEditor {
       this.polylineEntity.startEditing();
       this.polylineEntity.on(
         [mars3d.EventType.editStart, mars3d.EventType.editMovePoint, mars3d.EventType.editStyle, mars3d.EventType.editRemovePoint],
-        function (e: any) {
-          const graphic = e.graphic
+        (e: any) => {
+          const graphic = e.graphic;
           const positions = graphic.toGeoJSON().geometry.coordinates;
           console.log("positions", positions);
-          return positions;
+          if (this.onChangeCallback) {
+            this.onChangeCallback(positions);
+          }
         }
-      )
+      );
     }
+  }
 
+  // 结束编辑线
+  public stopEditLine() {
+    if (this.polylineEntity) {
+      this.polylineEntity.stopEditing();
+    }
   }
 }
 

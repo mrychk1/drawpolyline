@@ -24,7 +24,7 @@
         </tbody>
       </table>
       <button @click="startEditPolyline">继续编辑</button>
-      <button @click="">结束编辑</button>
+      <button @click="endEditPolyline">结束编辑</button>
     </div>
   </div>
 </template>
@@ -72,15 +72,20 @@ const updateMapGraphic = () => {
 
 const startEditPolyline = () => {
   if (lineEditor) {
-    const coordinates = lineEditor.startEditLine()
-    
-    // if (coordinates) {
-    //   positions.splice(0, positions.length, ...coordinates.map((p: any) => ({
-    //     lon: p[0],
-    //     lat: p[1],
-    //     height: p[2] || 0
-    //   })))
-    // }
+    lineEditor.startEditLine()
+    lineEditor.setOnChangeCallback((coords: number[][]) => {
+      positions.splice(0, positions.length, ...coords.map(p => ({
+        lon: p[0],
+        lat: p[1],
+        height: p[2] || 0
+      })))
+    })
+  }
+}
+
+const endEditPolyline = () => {
+  if (lineEditor) {
+    lineEditor.stopEditLine()
   }
 }
 
