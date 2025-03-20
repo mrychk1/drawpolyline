@@ -12,33 +12,25 @@
         <tbody>
           <tr v-for="(item, index) in positions" :key="index">
             <td>
-              <input 
-                :value="item.lon"
-                @input="e => updateCoordinate(index, 'lon', parseFloat(e.target.value))"
-              />
+              <input :value="item.lon" @input="e => updateCoordinate(index, 'lon', parseFloat(e.target.value))" />
             </td>
             <td>
-              <input
-                :value="item.lat"
-                @input="e => updateCoordinate(index, 'lat', parseFloat(e.target.value))"
-              />
+              <input :value="item.lat" @input="e => updateCoordinate(index, 'lat', parseFloat(e.target.value))" />
             </td>
             <td>
-              <input
-                :value="item.height"
-                @input="e => updateCoordinate(index, 'height', parseFloat(e.target.value))"
-              />
+              <input :value="item.height" @input="e => updateCoordinate(index, 'height', parseFloat(e.target.value))" />
             </td>
           </tr>
         </tbody>
       </table>
-      <button @click="editLine">继续编辑</button>
+      <button @click="startEditPolyline">继续编辑</button>
+      <button @click="">结束编辑</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { reactive, watch, onMounted } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { Map } from '../utily/initmap'
 import { mapOptions } from './utily/mapOptions'
 import LineEditor from '../utily/draw2'
@@ -53,12 +45,12 @@ interface Position {
 
 const positions = reactive<Position[]>([])
 let mapInstance: mars3d.Map | null = null
-let lineEditor: any = null
+let lineEditor: LineEditor | null = null
 
 // 坐标更新方法（带防抖）
 const updateCoordinate = (index: number, key: keyof Position, value: number) => {
   if (isNaN(value)) return
-  
+
   positions[index][key] = value
   syncToMap()
 }
@@ -78,14 +70,37 @@ const updateMapGraphic = () => {
   }
 }
 
+const startEditPolyline = () => {
+  if (lineEditor) {
+    const coordinates = lineEditor.startEditLine()
+    
+    // if (coordinates) {
+    //   positions.splice(0, positions.length, ...coordinates.map((p: any) => ({
+    //     lon: p[0],
+    //     lat: p[1],
+    //     height: p[2] || 0
+    //   })))
+    // }
+  }
+}
+
 onMounted(() => {
   // 初始化地图
   const map = new Map('mars3dContainer', mapOptions)
   mapInstance = map.getMapInstance()
-  
+
   if (mapInstance) {
     lineEditor = new LineEditor(mapInstance)
-    
+
+    // 设置位置变化回调
+    lineEditor.setOnChangeCallback((coords: number[][]) => {
+      positions.splice(0, positions.length, ...coords.map(p => ({
+        lon: p[0],
+        lat: p[1],
+        height: p[2] || 0
+      })))
+    })
+
     // 初始化绘制
     lineEditor.addLine().then((coords: number[][]) => {
       positions.splice(0, positions.length, ...coords.map(p => ({
@@ -96,28 +111,6 @@ onMounted(() => {
     })
   }
 })
-
-// 继续编辑图形的方法
-const editLine = () => {
-  if (lineEditor) {
-    lineEditor.startEditingById({
-      id: "exampleId",
-      positions: positions.map(p => [p.lon, p.lat, p.height]),
-      style: {
-        color: '#FF0000',
-        width: 4,
-        clampToGround: true
-      },
-      attr: {
-        name: "exampleName",
-        other: {
-          id: "exampleId",
-          name: "exampleName"
-        }
-      }
-    })
-  }
-}
 </script>
 
 <style scoped>
@@ -140,7 +133,8 @@ table {
   min-width: 300px;
 }
 
-th, td {
+th,
+td {
   padding: 8px 12px;
   border: 1px solid #444;
 }
