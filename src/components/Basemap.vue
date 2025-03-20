@@ -1,88 +1,159 @@
 <template>
   <div id="mars3dContainer" class="mars3d-container">
-    <!-- <div>这是一个mars3d地图</div> -->
-
-    <!-- <div class="button" @click="flyto">flyto</div>  -->
+    <div class="coordinates-table">
+      <table>
+        <thead>
+          <tr>
+            <th>经度</th>
+            <th>纬度</th>
+            <th>高度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in positions" :key="index">
+            <td>
+              <input 
+                :value="item.lon"
+                @input="e => updateCoordinate(index, 'lon', parseFloat(e.target.value))"
+              />
+            </td>
+            <td>
+              <input
+                :value="item.lat"
+                @input="e => updateCoordinate(index, 'lat', parseFloat(e.target.value))"
+              />
+            </td>
+            <td>
+              <input
+                :value="item.height"
+                @input="e => updateCoordinate(index, 'height', parseFloat(e.target.value))"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue'
-// 引入地图初始化方法
+import { reactive, watch, onMounted } from 'vue'
 import { Map } from '../utily/initmap'
-// 引入地图配置
 import { mapOptions } from './utily/mapOptions'
-// 引入添加多边形的方法
-import { AddCrop } from '../utily/AddCrop'
-// 引入多边形数据
-import { apple, banana, orange } from '../data/crop'
+import LineEditor from '../utily/draw2'
+import * as mars3d from "mars3d";
 
-// 引入画图
-import DrawingTool from '../utily/draw';
-import * as Cesium from 'mars3d-cesium';
-let appleCrop: AddCrop
+// 响应式数据结构
+interface Position {
+  lon: number
+  lat: number
+  height: number
+}
+
+const positions = reactive<Position[]>([])
+let mapInstance: mars3d.Map | null = null
+let lineEditor: any = null
+let polylineEntity: mars3d.graphic.PolylineEntity | null = null
+
+// 坐标更新方法（带防抖）
+const updateCoordinate = (index: number, key: keyof Position, value: number) => {
+  if (isNaN(value)) return
+  
+  positions[index][key] = value
+  syncToMap()
+}
+
+// 同步到地图（带防抖）
+let updateTimer: number
+const syncToMap = () => {
+  clearTimeout(updateTimer)
+  updateTimer = window.setTimeout(updateMapGraphic, 300)
+}
+
+// 地图图形更新方法
+const updateMapGraphic = () => {
+  if (!polylineEntity || !mapInstance) return
+  
+  // 更新图形对象
+  polylineEntity.positions = positions.map(p => [p.lon, p.lat, p.height])
+  polylineEntity.redraw()
+  
+  // 自动调整视角
+  // mapInstance.flyToGraphic(polylineEntity, { radius: 100 })
+}
+
 onMounted(() => {
   // 初始化地图
-  const mapInstance = new Map('mars3dContainer', mapOptions)
-  // 获取地图
-  const map = mapInstance.getMapInstance()
-  if (map) {
-    // 添加多边形
-    appleCrop = new AddCrop(map, "apple", "#ff0000", apple)
-    appleCrop.addBorder(true)
-    // 添加墙
-    appleCrop.addWall()
-    // 添加遮罩
-    appleCrop.addMask()
-    // 画线
-    const drawingTool = new DrawingTool(map.viewer);
-    drawingTool.startDrawing();
-    // appleCrop.addBorder(false)
-    // appleCrop.addCenterBillboard()
-    // appleCrop.onCenterMouse()
-    // const bananaCrop = new AddCrop(map, "banana", "#00ff00", banana)
-    // bananaCrop.addBorder(false)
-    // bananaCrop.addCenterBillboard()
-    // bananaCrop.onCenterMouse()
-    // const orangeCrop = new AddCrop(map, "orange", "#0000ff", orange)
-    // orangeCrop.addBorder(false)
-    // orangeCrop.addCenterBillboard()
-    // orangeCrop.onCenterMouse()
+  const map = new Map('mars3dContainer', mapOptions)
+  mapInstance = map.getMapInstance()
+  
+  if (mapInstance) {
+    lineEditor = new LineEditor(mapInstance)
+    
+    // 初始化绘制
+    lineEditor.addLine().then((coords: number[][]) => {
+      positions.splice(0, positions.length, ...coords.map(p => ({
+        lon: p[0],
+        lat: p[1],
+        height: p[2] || 0
+      })))
+      // 移除绘制
+      
+      // 创建图形对象
+      polylineEntity = new mars3d.graphic.PolylineEntity({
+        positions: coords,
+        style: {
+          color: '#FF0000',
+          width: 4,
+          clampToGround: true
+        }
+      })
+      mapInstance?.graphicLayer.addGraphic(polylineEntity)
+    })
   }
-
-
-  // 设置一个集合图层
-  // const GroupLayer = new mars3d.layer.GroupLayer({
-  //   layers: [a, b, o]
-  // })
-  // map.addLayer(GroupLayer)
-  // // 监听图层集合
-
 })
-
-const flyto = () => {
-  // console.log('flyto')
-  appleCrop.addCenterBillboardAndFlyTo()
-}
 </script>
 
 <style scoped>
-.mars3d-container {
-  width: 100%;
-  height: 100%;
+/* 保持原有样式不变 */
+.coordinates-table {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 999;
+  color: white;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-.button {
-  position: absolute;
-  top: 100px;
-  left: 100px;
+table {
+  border-collapse: collapse;
+  min-width: 300px;
+}
+
+th, td {
+  padding: 8px 12px;
+  border: 1px solid #444;
+}
+
+th {
+  background: #333;
+}
+
+input {
+  width: 80px;
+  padding: 4px;
+  background: #222;
+  border: 1px solid #444;
   color: #fff;
-  /* width: 100px;
-  height: 100px; */
-  background-color: #000;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 999;
+  text-align: center;
+}
+
+input:focus {
+  outline: 2px solid #2196F3;
+  background: #333;
 }
 </style>

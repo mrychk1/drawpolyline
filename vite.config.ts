@@ -4,4 +4,7 @@ import { mars3dPlugin } from 'vite-plugin-mars3d'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue(),mars3dPlugin()],
+  server:{
+    port:5177
+  }
 })
