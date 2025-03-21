@@ -24,6 +24,7 @@
         </tbody>
       </table>
       <button @click="startEditPolyline">继续编辑</button>
+      <button @click="addpoint">添加点</button>
       <button @click="endEditPolyline">结束编辑</button>
     </div>
   </div>
@@ -67,10 +68,22 @@ const updateMapGraphic = () => {
   lineEditorManager.updateLine(coords)
 }
 
+// 开始编辑
 const startEditPolyline = () => {
   lineEditorManager.startEditLine()
 }
 
+// 添加点
+const addpoint = () => {
+  positions.push({
+    lon: 120,
+    lat: 30,
+    height: 0
+  })
+  updateMapGraphic()
+}
+
+// 停止编辑
 const endEditPolyline = () => {
   lineEditorManager.stopEditLine()
 }
