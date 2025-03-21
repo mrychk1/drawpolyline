@@ -54,7 +54,6 @@ class LineEditor {
         (e: any) => {
           const graphic = e.graphic;
           const positions = graphic.toGeoJSON().geometry.coordinates;
-          console.log("positions", positions);
           if (this.onChangeCallback) {
             this.onChangeCallback(positions);
           }
