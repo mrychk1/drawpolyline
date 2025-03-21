@@ -65,7 +65,7 @@ class LineEditor {
   // 结束编辑线
   public stopEditLine() {
     if (this.polylineEntity) {
-      this.polylineEntity.stopEditing();
+      this.polylineEntity.stopEditing()
     }
   }
 }
