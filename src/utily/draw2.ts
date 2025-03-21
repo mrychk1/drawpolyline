@@ -70,4 +70,43 @@ class LineEditor {
   }
 }
 
-export default LineEditor;
+class LineEditorManager {
+  private lineEditor: LineEditor | null = null;
+
+  public initialize(mapInstance: mars3d.Map) {
+    this.lineEditor = new LineEditor(mapInstance);
+  }
+
+  public addLine(): Promise<number[][]> {
+    if (this.lineEditor) {
+      return this.lineEditor.addLine();
+    }
+    return Promise.reject("LineEditor not initialized");
+  }
+
+  public updateLine(positions: number[][]) {
+    if (this.lineEditor) {
+      this.lineEditor.updateLine(positions);
+    }
+  }
+
+  public setOnChangeCallback(callback: (positions: number[][]) => void) {
+    if (this.lineEditor) {
+      this.lineEditor.setOnChangeCallback(callback);
+    }
+  }
+
+  public startEditLine() {
+    if (this.lineEditor) {
+      this.lineEditor.startEditLine();
+    }
+  }
+
+  public stopEditLine() {
+    if (this.lineEditor) {
+      this.lineEditor.stopEditLine();
+    }
+  }
+}
+
+export const lineEditorManager = new LineEditorManager();

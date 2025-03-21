@@ -33,7 +33,7 @@
 import { reactive, onMounted } from 'vue'
 import { Map } from '../utily/initmap'
 import { mapOptions } from './utily/mapOptions'
-import LineEditor from '../utily/draw2'
+import { lineEditorManager } from '../utily/draw2'
 import * as mars3d from "mars3d";
 
 // 响应式数据结构
@@ -45,7 +45,6 @@ interface Position {
 
 const positions = reactive<Position[]>([])
 let mapInstance: mars3d.Map | null = null
-let lineEditor: LineEditor | null = null
 
 // 坐标更新方法（带防抖）
 const updateCoordinate = (index: number, key: keyof Position, value: number) => {
@@ -64,29 +63,16 @@ const syncToMap = () => {
 
 // 地图图形更新方法
 const updateMapGraphic = () => {
-  if (lineEditor) {
-    const coords = positions.map(p => [p.lon, p.lat, p.height])
-    lineEditor.updateLine(coords)
-  }
+  const coords = positions.map(p => [p.lon, p.lat, p.height])
+  lineEditorManager.updateLine(coords)
 }
 
 const startEditPolyline = () => {
-  if (lineEditor) {
-    lineEditor.startEditLine()
-    lineEditor.setOnChangeCallback((coords: number[][]) => {
-      positions.splice(0, positions.length, ...coords.map(p => ({
-        lon: p[0],
-        lat: p[1],
-        height: p[2] || 0
-      })))
-    })
-  }
+  lineEditorManager.startEditLine()
 }
 
 const endEditPolyline = () => {
-  if (lineEditor) {
-    lineEditor.stopEditLine()
-  }
+  lineEditorManager.stopEditLine()
 }
 
 onMounted(() => {
@@ -95,10 +81,10 @@ onMounted(() => {
   mapInstance = map.getMapInstance()
 
   if (mapInstance) {
-    lineEditor = new LineEditor(mapInstance)
+    lineEditorManager.initialize(mapInstance)
 
     // 设置位置变化回调
-    lineEditor.setOnChangeCallback((coords: number[][]) => {
+    lineEditorManager.setOnChangeCallback((coords: number[][]) => {
       positions.splice(0, positions.length, ...coords.map(p => ({
         lon: p[0],
         lat: p[1],
@@ -107,7 +93,7 @@ onMounted(() => {
     })
 
     // 初始化绘制
-    lineEditor.addLine().then((coords: number[][]) => {
+    lineEditorManager.addLine().then((coords: number[][]) => {
       positions.splice(0, positions.length, ...coords.map(p => ({
         lon: p[0],
         lat: p[1],
