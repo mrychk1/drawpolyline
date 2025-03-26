@@ -7,7 +7,7 @@ export class MapSingleton {
     MapSingleton.map = new mars3d.Map(containerId, options);
   }
 
-  public static getMapInstance(containerId: string, options?: any): mars3d.Map {
+  public static MapInstance(containerId: string, options?: any): mars3d.Map {
     if (!MapSingleton.map) {
       new MapSingleton(containerId, options);
     }

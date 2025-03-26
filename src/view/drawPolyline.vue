@@ -116,7 +116,7 @@ function drawline() {
 
 onMounted(() => {
   // 初始化地图
-  mapInstance = MapSingleton.getMapInstance("mars3dContainer")
+  mapInstance = MapSingleton.MapInstance("mars3dContainer")
   drawline()
 })
 onUnmounted(() => {

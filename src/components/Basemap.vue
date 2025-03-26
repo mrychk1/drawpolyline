@@ -24,7 +24,7 @@ const toggleDrawLine = () => {
 }
 onMounted(() => {
   // 初始化地图
-  mapInstance = MapSingleton.getMapInstance("mars3dContainer",mapOptions)
+  mapInstance = MapSingleton.MapInstance("mars3dContainer",mapOptions)
 })
 </script>
 
