@@ -34,7 +34,7 @@
 import { reactive, onMounted } from 'vue'
 import { Map } from '../utily/initmap'
 import { mapOptions } from './utily/mapOptions'
-import { lineEditorManager } from '../utily/draw2'
+import { lineEditorManager } from '../utily/drawline'
 import * as mars3d from "mars3d";
 
 // 响应式数据结构
