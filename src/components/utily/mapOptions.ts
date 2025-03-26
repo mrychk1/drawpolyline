@@ -11,6 +11,8 @@ export const mapOptions = {
         boolean: true // 是否开启地球光照
     },
     // terrain: {
+
+    
     //     url: 'https://data.mars3d.cn/terrain',
     //     show: true
     // },

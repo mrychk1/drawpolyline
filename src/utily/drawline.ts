@@ -8,7 +8,10 @@ class LineEditor {
 
   constructor(mapInstance: mars3d.Map) {
     this.map = mapInstance;
-    this.graphicLayer = new mars3d.layer.GraphicLayer({});
+    this.graphicLayer = new mars3d.layer.GraphicLayer({
+      id: "draw_line_layer",
+      name: "画线图层",
+    });
     this.map.addLayer(this.graphicLayer);
   }
 
@@ -37,6 +40,7 @@ class LineEditor {
     if (this.polylineEntity) {
       this.polylineEntity.positions = positions;
       this.polylineEntity.redraw();
+      this.startEditLine();
     }
   }
 
@@ -67,6 +71,11 @@ class LineEditor {
     if (this.polylineEntity) {
       this.polylineEntity.stopEditing()
     }
+  }
+
+  // 清空
+  public clear() {
+    this.graphicLayer.clear();
   }
 }
 
@@ -105,6 +114,12 @@ class LineEditorManager {
   public stopEditLine() {
     if (this.lineEditor) {
       this.lineEditor.stopEditLine();
+    }
+  }
+
+  public clear() {
+    if (this.lineEditor) {
+      this.lineEditor.clear();
     }
   }
 }
