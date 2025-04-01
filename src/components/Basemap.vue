@@ -1,9 +1,13 @@
 <template>
   <div id="mars3dContainer" class="mars3d-container">
-    <button @click="toggleDrawLine" class="draw-button">
+    <!-- <button @click="toggleDrawLine" class="draw-button">
       {{ isDrawing ? '取消画线' : '画线' }}
     </button>
-    <drawPolyline v-if="isDrawing" />
+    <drawPolyline v-if="isDrawing" /> -->
+    <button @click="toggleDrawPolygon" class="draw-button">
+      {{ isDrawing ? '取消画面' : '画面' }}
+    </button>
+    <DrawPolygon v-if="isDrawing" />
   </div>
 
 
@@ -13,13 +17,18 @@
 import { reactive, ref, onMounted } from 'vue'
 import * as mars3d from "mars3d";
 import drawPolyline from '../view/drawPolyline.vue';
+import DrawPolygon from '../view/drawPolygon.vue';
 import { MapSingleton } from '../utily/initmap'
 import { mapOptions } from './utily/mapOptions'
 
 let mapInstance: mars3d.Map | null = null
 const isDrawing = ref(false) // 控制表单显示的状态
 // 切换画线状态
-const toggleDrawLine = () => {
+// const toggleDrawLine = () => {
+//   isDrawing.value = !isDrawing.value
+// }
+// 切换画面状态
+const toggleDrawPolygon = () => {
   isDrawing.value = !isDrawing.value
 }
 onMounted(() => {
