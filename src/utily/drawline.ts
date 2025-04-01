@@ -10,7 +10,6 @@ class LineEditor {
     this.map = mapInstance;
     this.graphicLayer = new mars3d.layer.GraphicLayer({
       id: "draw_line_layer",
-      name: "画线图层",
     });
     this.map.addLayer(this.graphicLayer);
   }
@@ -55,11 +54,13 @@ class LineEditor {
       this.polylineEntity.startEditing();
       this.polylineEntity.on(
         [mars3d.EventType.editStart, mars3d.EventType.editMovePoint, mars3d.EventType.editStyle, mars3d.EventType.editRemovePoint],
-        (e: any) => {
-          const graphic = e.graphic;
-          const positions = graphic.toGeoJSON().geometry.coordinates;
-          if (this.onChangeCallback) {
-            this.onChangeCallback(positions);
+        () => {
+          const polylinLayer = this.map.getLayerById("draw_line_layer");
+          if (polylinLayer) {
+            const positions = polylinLayer.toGeoJSON().features[0].geometry.coordinates;
+            if (this.onChangeCallback) {
+              this.onChangeCallback(positions);
+            }
           }
         }
       );
